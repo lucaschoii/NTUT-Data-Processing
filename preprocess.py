@@ -27,7 +27,7 @@ def remove_drift(data, window_size=50):
     return drift_removed_data
 
 
-def bandpass_filter(data, fs=500, lowcut=3, highcut=8, numtaps=101, order=4):
+def bandpass_filter(data, fs=500, lowcut=1, highcut=30, numtaps=101, order=4):
     '''
     Applies a bandpass filter to data.
 

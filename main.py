@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
 import pickle
-from process import remove_drift, bandpass_filter, segment_data
+from preprocess import remove_drift, bandpass_filter, segment_data
 
 with (open("data.pkl", "rb")) as openfile:
     data = pickle.load(openfile)
+
 x = data[0]
 y = data[1]
 z = data[2]
@@ -47,3 +48,7 @@ plt.title("Z Accelerometer Data")
 plt.legend()
 
 plt.show()
+
+x_segmented = segment_data(x_filtered, window_size=1500, overlap_ratio=0.3)
+y_segmented = segment_data(y_filtered, window_size=1500, overlap_ratio=0.3)
+z_segmented = segment_data(z_filtered, window_size=1500, overlap_ratio=0.3)
