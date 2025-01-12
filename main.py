@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import pickle
-from preprocess import remove_drift, bandpass_filter, segment_data
+from preprocess import remove_drift, bandpass_filter, segment_data, detect_peak_frequency
 
 with (open("data.pkl", "rb")) as openfile:
     data = pickle.load(openfile)
@@ -47,8 +47,21 @@ plt.plot(z_filtered, label='Z (Filtered)')
 plt.title("Z Accelerometer Data")
 plt.legend()
 
-plt.show()
+# plt.show()
 
 x_segmented = segment_data(x_filtered, window_size=1500, overlap_ratio=0.3)
 y_segmented = segment_data(y_filtered, window_size=1500, overlap_ratio=0.3)
 z_segmented = segment_data(z_filtered, window_size=1500, overlap_ratio=0.3)
+
+
+peak_frequencies = []
+for i in range(len(x_segmented)):
+
+    x_window = x_segmented[i]
+
+    peak_frequencies.append(detect_peak_frequency(x_window, fs=100, low_freq=3, high_freq=8, ar_order=6))
+
+print(peak_frequencies)
+    
+
+

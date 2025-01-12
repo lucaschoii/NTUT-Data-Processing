@@ -1,7 +1,9 @@
 import numpy as np
 from scipy.signal import lfilter, firwin, butter
 
+from scipy.signal import find_peaks
 
+from spectrum import pburg
 
 def remove_drift(data, window_size=50):
     '''
@@ -72,6 +74,42 @@ def segment_data(data, window_size, overlap_ratio):
 
     return np.array(segmented_data)
 
+def detect_peak_frequency(window, fs=100, low_freq=3, high_freq=8, ar_order=6):
+    '''
+    Detects the peak frequency in a window of data.
+
+    Args:
+        window: array of accelerometer data
+        fs: sampling frequency
+        low_freq: low cutoff frequency
+        high_freq: high cutoff frequency
+        ar_order: autoregressive model order
+    
+    Returns:
+        peak_frequency: peak frequency in the window, otherwise 1
+    '''
+    # Compute the power spectral density using the Burg method  
+    psd = pburg(window, ar_order, sampling=fs, NFFT=512)
+    f = np.asarray(psd.frequencies())
+    psd = psd.psd
+
+    # Filter frequencies within the specified range
+    freq_mask = (f >= low_freq) & (f <= high_freq)
+    filtered_freqs = f[freq_mask]
+    filtered_psd = psd[freq_mask]
+    
+    if len(filtered_freqs) == 0:
+        return 1  # Return 1 if no frequencies are within the range
+
+    # Find the peak frequency within the filtered range
+    peaks, _ = find_peaks(filtered_psd)
+    if len(peaks) == 0:
+        return 1  # Return 1 if no peak is found
+
+    peak_index = peaks[np.argmax(filtered_psd[peaks])]
+    peak_frequency = filtered_freqs[peak_index]
+    
+    return peak_frequency
 
 
 
